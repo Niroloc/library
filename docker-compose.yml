@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres
+    ports:
+      - "6000:5432"
+    restart: always
+    volumes:
+      - libdbdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: q61e6V5
+  broker:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: library
+      RABBITMQ_DEFAULT_PASS: vkpgnC
+    ports:
+      - "15672:15672"
+  web:
+    build: .
+    volumes:
+      - libraryfiles:/files
+    ports:
+      - "8000:8000"
+    restart: always
+    command: sh -c "python3 manage.py migrate && celery -A library_backend worker -l INFO --detach && python3 ./manage.py runserver 0.0.0.0:8000"
+volumes:
+  libdbdata:
+    external: false
+  libraryfiles:
+    external: false
